@@ -1,25 +1,13 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="UTF-8">
-  <title>Toggle Status</title>
-</head>
-<body>
-  <h1>Toggle Business Status</h1>
-  <button onclick="toggle()">Toggle OPEN/CLOSED</button>
-  <p id="result"></p>
-
-  <script>
-    async function toggle() {
-      let response = await fetch('status.json');
-      let data = await response.json();
-      let newStatus = data.status === "OPEN" ? "CLOSED" : "OPEN";
-      let now = new Date().toISOString();
-      let updated = { status: newStatus, last_updated: now };
-
-      document.getElementById("result").innerText = "This demo can't save changes locally, but this is what it would save:\n" + JSON.stringify(updated, null, 2);
+<script>
+  async function toggle() {
+    const resultElement = document.getElementById("result");
+    try {
+      const res = await fetch("/.netlify/functions/toggle-status", { method: "POST" });
+      if (!res.ok) throw new Error("Network response was not OK");
+      const data = await res.json();
+      resultElement.innerText = "✅ Status toggled:\n" + JSON.stringify(data, null, 2);
+    } catch (err) {
+      resultElement.innerText = "❌ Error toggling status:\n" + err.message;
     }
-  </script>
-  <p><em>This version is a demo only — saving requires hosting with a backend (Netlify, GitHub, or Firebase).</em></p>
-</body>
-</html>
+  }
+</script>

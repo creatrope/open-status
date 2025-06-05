@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Business Status</title>
+</head>
+<body>
+  <h1>Is the Business Open?</h1>
+  <div id="status">Checking status...</div>
+
+  <script>
+    fetch('status.json')
+      .then(res => res.json())
+      .then(data => {
+        const statusText = data.status === 'OPEN' ? '🟢 OPEN' : '🔴 CLOSED';
+        const color = data.status === 'OPEN' ? 'green' : 'red';
+        document.getElementById('status').innerHTML = 
+          `<strong style="color:${color}; font-size: 2em;">${statusText}</strong><br><small>Last updated: ${new Date(data.last_updated).toLocaleString()}</small>`;
+      })
+      .catch(err => {
+        document.getElementById('status').innerText = 'Unable to load status.';
+      });
+  </script>
+</body>
+</html>

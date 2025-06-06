@@ -9,7 +9,7 @@
   <div id="status">Checking status...</div>
 
 <script>
-  fetch('/.netlify/functions/toggle-status')
+  fetch('/.netlify/functions/get-status')
     .then(res => res.json())
     .then(data => {
       const statusText = data.status === 'OPEN' ? '🟢 OPEN' : '🔴 CLOSED';

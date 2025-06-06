@@ -1,21 +1,26 @@
-const fs = require('fs');
-const path = require('path');
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Toggle Business Status</title>
+</head>
+<body>
+  <h1>Toggle Business Status</h1>
+  <button onclick="toggle()">Toggle OPEN/CLOSED</button>
+  <pre id="result" style="margin-top: 1em; font-family: monospace;"></pre>
 
-exports.handler = async function(event, context) {
-  const filePath = path.resolve(__dirname, '../../status.json');
-  const statusData = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
-
-  const newStatus = statusData.status === 'OPEN' ? 'CLOSED' : 'OPEN';
-  const updated = {
-    status: newStatus,
-    last_updated: new Date().toISOString()
-  };
-
-  fs.writeFileSync(filePath, JSON.stringify(updated, null, 2));
-
-  return {
-    statusCode: 200,
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(updated)
-  };
-};
+  <script>
+    async function toggle() {
+      const resultElement = document.getElementById("result");
+      try {
+        const res = await fetch("/.netlify/functions/toggle-status", { method: "POST" });
+        if (!res.ok) throw new Error("Network response was not OK");
+        const data = await res.json();
+        resultElement.innerText = "✅ Status toggled:\n" + JSON.stringify(data, null, 2);
+      } catch (err) {
+        resultElement.innerText = "❌ Error toggling status:\n" + err.message;
+      }
+    }
+  </script>
+</body>
+</html>

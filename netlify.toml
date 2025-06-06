@@ -1,6 +1,3 @@
 [build]
   functions = "netlify/functions"
   publish = "."
-
-[experimental]
-  functions = { enable = ["kv"] }

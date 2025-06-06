@@ -1,28 +1,31 @@
 // netlify/functions/toggle-status.js
+import { set } from '@netlify/blobs';
 
-let currentStatus = {
-  status: "CLOSED",
-  last_updated: new Date().toISOString()
-};
-
-exports.handler = async function (event, context) {
+export async function handler() {
   try {
-    // Toggle the status
-    currentStatus.status = currentStatus.status === "OPEN" ? "CLOSED" : "OPEN";
-    currentStatus.last_updated = new Date().toISOString();
+    // Toggle logic can come from an existing source
+    const current = await fetch(`${process.env.URL}/.netlify/functions/get-status`)
+      .then(res => res.json())
+      .catch(() => ({ status: 'CLOSED' }));
+
+    const newStatus = current.status === 'OPEN' ? 'CLOSED' : 'OPEN';
+    const last_updated = new Date().toISOString();
+
+    const blobData = JSON.stringify({ status: newStatus, last_updated });
+
+    await set('business_status.json', blobData, {
+      contentType: 'application/json'
+    });
 
     return {
       statusCode: 200,
-      headers: {
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*"
-      },
-      body: JSON.stringify(currentStatus, null, 2)
+      body: JSON.stringify({ status: newStatus, last_updated })
     };
-  } catch (error) {
+  } catch (err) {
+    console.error('Blob write failed:', err);
     return {
       statusCode: 500,
-      body: `Error: ${error.message}`
+      body: JSON.stringify({ error: 'Blob write failed' })
     };
   }
-};
+}

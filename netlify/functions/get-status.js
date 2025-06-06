@@ -1,25 +1,28 @@
 // netlify/functions/get-status.js
+import { get } from '@netlify/blobs';
+
 export async function handler() {
   try {
-    const kv = await import('@netlify/kv');
-    const status = await kv.get('business_status') || 'CLOSED';
-    const last_updated = await kv.get('business_status_last_updated') || new Date().toISOString();
+    const { metadata, body } = await get('business_status.json');
 
-    console.log('Fetched from KV:', { status, last_updated });
+    if (!body) {
+      throw new Error('No status blob found.');
+    }
+
+    const { status, last_updated } = JSON.parse(await body.text());
 
     return {
       statusCode: 200,
       body: JSON.stringify({ status, last_updated })
     };
   } catch (err) {
-    console.error('KV access failed:', err);
-
+    console.error('Blob read failed:', err);
     return {
       statusCode: 200,
       body: JSON.stringify({
         status: 'UNKNOWN',
         last_updated: new Date().toISOString(),
-        error: 'KV not available'
+        error: 'Blob not available'
       })
     };
   }

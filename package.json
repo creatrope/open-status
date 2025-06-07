@@ -1,6 +1,6 @@
 {
   "type": "module",
   "dependencies": {
-    "@netlify/blobs": "^8.0.1",
+    "@netlify/blobs": "^8.0.1"
   }
 }
